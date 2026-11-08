@@ -14,7 +14,7 @@
 ### 1. 파일 구조
 | 파일 | 내용 |
 |---|---|
-| `index.html` | 원래 `SOVT voice therapy`. `git mv`로 이름을 바꿔 이력을 유지했고 전면 개편했습니다 |
+| `index.html` | 원래 `SOVT voice therapy`. `git mv`로 이름을 바꿨지만 내용이 크게 달라져 git에는 삭제 후 새 파일로 기록됩니다(이전 내용은 커밋 8633f31에 있습니다) |
 | `manifest.json` | `start_url: ./index.html`, `scope`, `id`, `lang: ko`, maskable 아이콘 추가, 테마색 `#1F5FA8` |
 | `sw.js` | 새로 작성 (아래 3번 참고) |
 | `icon-192x192.png`, `icon-512x512.png` | 새 파일: 일반 아이콘(모서리 둥근 형태) |

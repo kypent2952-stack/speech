@@ -1,0 +1,1324 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>집에서 간단히 할수있는 음성치료</title>
+    <meta name="description" content="SOVT(반폐쇄성도훈련) 원리를 이용해 집에서 혼자 할 수 있는 음성 재활 훈련 앱입니다. 훈련별 타이머, 일일 기록, 최근 14일 진행 그래프를 제공합니다.">
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="ko_KR">
+    <meta property="og:title" content="집에서 간단히 할 수 있는 음성치료 (SOVT)">
+    <meta property="og:description" content="빨대 불기, 입술 떨기 등 SOVT 자가 음성 훈련을 타이머와 기록으로 꾸준히.">
+    <meta property="og:image" content="icon-512x512.png">
+    <meta name="twitter:card" content="summary">
+    <!-- PWA -->
+    <meta name="theme-color" content="#1F5FA8" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#0F141A" media="(prefers-color-scheme: dark)">
+    <meta name="color-scheme" content="light dark">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="음성치료">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192x192.png">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <!-- 주 폰트: Pretendard (CDN 실패 시 시스템 폰트로 대체되며 레이아웃은 유지됩니다) -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+    <style>
+        :root {
+            --font: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
+            --bg: #F3F5F8;
+            --surface: #FFFFFF;
+            --surface-2: #EEF2F7;
+            --text: #142030;
+            --text-2: #3E4A58;
+            --muted: #5B6774;
+            --border: #D3DAE3;
+            --accent: #1F5FA8;
+            --accent-strong: #174A85;
+            --accent-ink: #FFFFFF;
+            --accent-soft: #E5EEF8;
+            --accent-text: #1F5FA8;
+            --chart: #1F5FA8;
+            --grid: #E3E8EE;
+            --ok: #1D7445;
+            --ok-soft: #E3F3E9;
+            --c-blue-bg: #E3EEFA;   --c-blue-fg: #1F5FA8;
+            --c-red-bg: #FBE7E7;    --c-red-fg: #B3261E;
+            --c-green-bg: #E2F3E8;  --c-green-fg: #1D7445;
+            --tip-blue-bg: #EDF4FC; --tip-blue-bd: #B5CDEB;
+            --tip-red-bg: #FDF0F0;  --tip-red-bd: #EFC3C3;
+            --tip-green-bg: #EDF7F1; --tip-green-bd: #B6DCC4;
+            --hero-from: #1F5FA8;
+            --hero-to: #2C78C9;
+            --shadow: 0 1px 2px rgba(16, 30, 54, .06), 0 4px 14px rgba(16, 30, 54, .07);
+            --radius: 16px;
+            --tap: 48px;
+            color-scheme: light;
+        }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #0E1319;
+                --surface: #172029;
+                --surface-2: #1E2833;
+                --text: #E8EDF2;
+                --text-2: #BCC6D0;
+                --muted: #9CA8B4;
+                --border: #2D3946;
+                --accent: #5B93D9;
+                --accent-strong: #79A9E6;
+                --accent-ink: #0A1626;
+                --accent-soft: #1C2F47;
+                --accent-text: #8DB8EE;
+                --chart: #5B93D9;
+                --grid: #26313C;
+                --ok: #6FCF97;
+                --ok-soft: #173326;
+                --c-blue-bg: #1C2F47;  --c-blue-fg: #8DB8EE;
+                --c-red-bg: #3A1F22;   --c-red-fg: #F2A7A2;
+                --c-green-bg: #173326; --c-green-fg: #7FD3A2;
+                --tip-blue-bg: #18283B; --tip-blue-bd: #2E4C72;
+                --tip-red-bg: #2E1C1F;  --tip-red-bd: #5A3237;
+                --tip-green-bg: #17291F; --tip-green-bd: #2D5A40;
+                --hero-from: #173A63;
+                --hero-to: #1F5FA8;
+                --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 4px 14px rgba(0, 0, 0, .25);
+                color-scheme: dark;
+            }
+        }
+
+        *, *::before, *::after { box-sizing: border-box; }
+        html { -webkit-text-size-adjust: 100%; }
+        body {
+            margin: 0;
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            word-break: keep-all;
+            overflow-wrap: anywhere;
+        }
+        h1, h2, h3, h4, p { margin: 0; }
+        button { font: inherit; color: inherit; }
+        [hidden] { display: none !important; }
+        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+        :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 8px; }
+
+        #app {
+            max-width: 480px;
+            margin: 0 auto;
+            min-height: 100vh;
+            min-height: 100dvh;
+            background: var(--bg);
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        @media (min-width: 600px) {
+            body { padding: 24px 0; }
+            #app { border-radius: 24px; box-shadow: var(--shadow); overflow: hidden; min-height: calc(100vh - 48px); border: 1px solid var(--border); }
+        }
+
+        /* 상단 바 */
+        .topbar {
+            position: sticky; top: 0; z-index: 10;
+            display: flex; align-items: center; justify-content: space-between; gap: 8px;
+            padding: 8px 12px 8px 16px;
+            padding-top: calc(8px + env(safe-area-inset-top));
+            background: color-mix(in srgb, var(--bg) 88%, transparent);
+            -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+        }
+        .topbar .brand { font-weight: 700; font-size: 16px; display: flex; align-items: center; gap: 8px; background: none; border: 0; padding: 0; min-height: var(--tap); cursor: pointer; }
+        .topbar .brand img { width: 28px; height: 28px; border-radius: 8px; }
+        .icon-btn {
+            min-height: var(--tap); padding: 0 14px; border-radius: 999px;
+            background: var(--surface); border: 1px solid var(--border);
+            font-weight: 600; font-size: 15px; cursor: pointer;
+            display: inline-flex; align-items: center; gap: 6px;
+        }
+        .icon-btn svg { width: 20px; height: 20px; }
+
+        .screen { padding: 20px 16px 32px; }
+
+        /* 버튼 */
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            min-height: 52px; padding: 0 20px; border-radius: 12px;
+            font-weight: 700; font-size: 17px; border: 1px solid transparent; cursor: pointer;
+            transition: background-color .15s ease, transform .1s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .btn:active { transform: scale(.98); }
+        .btn-primary { background: var(--accent); color: var(--accent-ink); }
+        .btn-primary:hover { background: var(--accent-strong); }
+        .btn-secondary { background: var(--surface); color: var(--text); border-color: var(--border); }
+        .btn-secondary:hover { background: var(--surface-2); }
+        .btn-block { width: 100%; }
+        .btn-sm { min-height: var(--tap); font-size: 15px; padding: 0 14px; }
+
+        /* 카드 */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+        .card-btn {
+            width: 100%; text-align: left; cursor: pointer;
+            display: flex; align-items: center; gap: 14px; padding: 18px 16px;
+            transition: border-color .15s ease, transform .15s ease;
+        }
+        .card-btn:hover { border-color: var(--accent); }
+        .card-btn:active { transform: scale(.99); }
+        .stack > * + * { margin-top: 12px; }
+
+        .badge-icon { flex: none; width: 52px; height: 52px; border-radius: 999px; display: grid; place-items: center; }
+        .badge-icon svg { width: 28px; height: 28px; }
+        .badge-blue { background: var(--c-blue-bg); color: var(--c-blue-fg); }
+        .badge-red { background: var(--c-red-bg); color: var(--c-red-fg); }
+        .badge-green { background: var(--c-green-bg); color: var(--c-green-fg); }
+        .badge-indigo { background: var(--accent-soft); color: var(--accent-text); }
+        .card-title { font-size: 17px; font-weight: 700; color: var(--text); line-height: 1.4; }
+        .card-desc { font-size: 15px; color: var(--text-2); margin-top: 2px; }
+        .chev { flex: none; width: 22px; height: 22px; color: var(--muted); margin-left: auto; }
+
+        /* 환영 화면 */
+        .welcome {
+            min-height: calc(100vh - 66px);
+            min-height: calc(100dvh - 66px);
+            display: flex; flex-direction: column; justify-content: center; text-align: center;
+            padding: 32px 20px;
+        }
+        .welcome .hero-icon { width: 96px; height: 96px; margin: 0 auto 24px; border-radius: 24px; box-shadow: var(--shadow); }
+        .welcome h1 { font-size: clamp(28px, 8vw, 36px); line-height: 1.3; font-weight: 800; letter-spacing: -0.02em; }
+        .welcome .lead { font-size: 17px; color: var(--text-2); margin: 16px 0 28px; }
+        .welcome .actions > * + * { margin-top: 10px; }
+        .today-chip {
+            display: inline-flex; align-items: center; gap: 8px; margin: 0 auto 24px;
+            padding: 8px 14px; border-radius: 999px; font-size: 14px; font-weight: 600;
+            background: var(--surface); border: 1px solid var(--border); color: var(--text-2);
+        }
+        .today-chip .dot { width: 8px; height: 8px; border-radius: 99px; background: var(--muted); }
+        .today-chip.done .dot { background: var(--ok); }
+        .disclaimer { font-size: 13px; color: var(--muted); margin-top: 28px; line-height: 1.55; }
+
+        .h2 { font-size: 24px; font-weight: 800; letter-spacing: -0.01em; }
+        .sub { color: var(--text-2); margin: 6px 0 20px; font-size: 16px; }
+
+        /* 정보 아코디언 */
+        .info { margin-top: 24px; overflow: hidden; }
+        .info-head { border: 0; background: none; border-radius: var(--radius); box-shadow: none; }
+        .info-head .chev { transition: transform .25s ease; }
+        .info-head[aria-expanded="true"] .chev { transform: rotate(180deg); }
+        .info-body { border-top: 1px solid var(--border); padding: 18px 18px 22px; }
+        .info-body > * + * { margin-top: 20px; }
+        .info-body h4 { font-size: 17px; font-weight: 700; color: var(--accent-text); }
+        .info-body p { color: var(--text-2); margin-top: 4px; font-size: 15.5px; }
+        .info-body strong { color: var(--text); }
+        .info-body .block { display: block; margin-top: 8px; }
+
+        /* 훈련 화면 */
+        .train-hero {
+            background: linear-gradient(135deg, var(--hero-from), var(--hero-to));
+            color: #fff; padding: 22px 18px 26px; border-radius: 0 0 24px 24px;
+        }
+        .train-hero .row { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+        .train-hero h2 { font-size: 23px; font-weight: 800; line-height: 1.35; }
+        .train-hero p { margin-top: 8px; font-size: 15px; color: rgba(255,255,255,.92); }
+        .hero-btn { flex: none; min-height: 44px; padding: 0 14px; border-radius: 999px; background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.35); color: #fff; font-weight: 600; font-size: 14px; cursor: pointer; }
+        .progress-line { margin-top: 16px; display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; }
+        .progress-track { flex: 1; height: 8px; border-radius: 99px; background: rgba(255,255,255,.25); overflow: hidden; }
+        .progress-fill { height: 100%; width: 0; background: #fff; border-radius: 99px; transition: width .3s ease; }
+
+        .section-title { font-size: 19px; font-weight: 800; margin: 4px 0 14px; }
+        .ex-emoji { flex: none; width: 52px; height: 52px; border-radius: 14px; display: grid; place-items: center; font-size: 28px; background: var(--surface-2); }
+        .ex-meta { font-size: 14px; color: var(--muted); margin-top: 2px; }
+        .done-pill { display: inline-flex; align-items: center; gap: 4px; margin-top: 6px; font-size: 13px; font-weight: 700; color: var(--ok); background: var(--ok-soft); padding: 2px 10px; border-radius: 99px; }
+
+        /* 모달 (모바일: 바텀시트) */
+        .modal-overlay {
+            position: fixed; inset: 0; z-index: 50;
+            background: rgba(6, 12, 20, .55);
+            display: flex; align-items: flex-end; justify-content: center;
+            opacity: 0; visibility: hidden; transition: opacity .2s ease, visibility .2s ease;
+        }
+        .modal-overlay.show { opacity: 1; visibility: visible; }
+        .modal-content {
+            background: var(--surface); color: var(--text);
+            width: 100%; max-width: 520px; max-height: 92vh; max-height: 92dvh; overflow-y: auto;
+            border-radius: 22px 22px 0 0; padding: 22px 18px calc(22px + env(safe-area-inset-bottom));
+            transform: translateY(24px); transition: transform .25s ease;
+            overscroll-behavior: contain;
+        }
+        .modal-overlay.show .modal-content { transform: translateY(0); }
+        @media (min-width: 600px) {
+            .modal-overlay { align-items: center; }
+            .modal-content { border-radius: 22px; padding: 28px; }
+        }
+        .modal-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+        .modal-head h3 { font-size: 21px; font-weight: 800; line-height: 1.4; }
+        .close-x { flex: none; width: var(--tap); height: var(--tap); border-radius: 999px; border: 1px solid var(--border); background: var(--surface-2); cursor: pointer; display: grid; place-items: center; }
+        .close-x svg { width: 22px; height: 22px; }
+
+        /* 훈련 설명 본문 (원문 마크업 유지용 스타일) */
+        .ex-body { color: var(--text-2); font-size: 16px; }
+        .ex-body > * + * { margin-top: 16px; }
+        .ex-body strong { color: var(--text); }
+        .ex-body ol, .ex-body ul { padding-left: 1.4em; margin-bottom: 0; }
+        .ex-body .list-inside { padding-left: 1.4em; }
+        .ex-body .list-decimal { list-style: decimal; }
+        .ex-body .list-disc { list-style: disc; }
+        .ex-body .mt-2 { margin-top: 8px; }
+        .ex-body .mt-4 { margin-top: 16px; }
+        .ex-body .space-y-2 > * + * { margin-top: 8px; }
+        .ex-body .p-3 { padding: 12px 14px; }
+        .ex-body .rounded-lg { border-radius: 10px; }
+        .ex-body .border { border: 1px solid var(--border); }
+        .ex-body .bg-blue-50 { background: var(--tip-blue-bg); }
+        .ex-body .border-blue-200 { border-color: var(--tip-blue-bd); }
+        .ex-body .bg-red-50 { background: var(--tip-red-bg); }
+        .ex-body .border-red-200 { border-color: var(--tip-red-bd); }
+        .ex-body .bg-green-50 { background: var(--tip-green-bg); }
+        .ex-body .border-green-200 { border-color: var(--tip-green-bd); }
+
+        /* 타이머 */
+        .timer { margin-top: 22px; padding: 18px 16px; border-radius: var(--radius); background: var(--surface-2); border: 1px solid var(--border); }
+        .timer-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+        .timer-head h4 { font-size: 17px; font-weight: 800; }
+        .timer-phase { font-size: 14px; font-weight: 700; color: var(--accent-text); }
+        .timer-phase.rest { color: var(--ok); }
+        .ring-wrap { position: relative; width: 200px; max-width: 70vw; aspect-ratio: 1; margin: 14px auto 8px; }
+        .ring-wrap svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+        .ring-bg { stroke: var(--border); }
+        .ring-fg { stroke: var(--accent); transition: stroke-dashoffset .25s linear, stroke .2s; }
+        .ring-fg.rest { stroke: var(--ok); }
+        .ring-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        .ring-time { font-size: 48px; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; line-height: 1.1; }
+        .ring-sets { font-size: 15px; color: var(--text-2); font-weight: 600; margin-top: 4px; }
+        .timer-actions { display: grid; grid-template-columns: 3fr 2fr; gap: 10px; margin-top: 12px; }
+        .steppers { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 16px; }
+        .stepper { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 8px 6px; text-align: center; }
+        .stepper .lbl { font-size: 13px; color: var(--muted); font-weight: 600; }
+        .stepper .val { font-size: 18px; font-weight: 800; font-variant-numeric: tabular-nums; }
+        .stepper .ctrl { display: flex; justify-content: center; gap: 6px; margin-top: 4px; }
+        .stepper button { width: 44px; height: 44px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface-2); font-size: 22px; font-weight: 700; cursor: pointer; line-height: 1; }
+        .stepper button:disabled { opacity: .4; cursor: not-allowed; }
+        .timer-note { font-size: 13px; color: var(--muted); margin-top: 12px; line-height: 1.55; }
+        .timer-extra { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+        .check-row { display: flex; align-items: center; gap: 8px; min-height: var(--tap); font-size: 15px; color: var(--text-2); cursor: pointer; }
+        .check-row input { width: 22px; height: 22px; accent-color: var(--accent); }
+
+        /* 기록 화면 */
+        .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 16px; }
+        .stat { padding: 14px 10px; text-align: center; }
+        .stat .num { font-size: 26px; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1.2; }
+        .stat .num small { font-size: 14px; font-weight: 700; color: var(--text-2); margin-left: 2px; }
+        .stat .lbl { font-size: 13px; color: var(--muted); font-weight: 600; margin-top: 2px; }
+        .chart-card { padding: 16px 14px 12px; }
+        .chart-card h3 { font-size: 17px; font-weight: 800; }
+        .chart-card .chart-sub { font-size: 14px; color: var(--muted); margin-top: 2px; }
+        .chart-box { position: relative; margin-top: 10px; }
+        .chart-box svg { display: block; width: 100%; height: auto; overflow: visible; }
+        .chart-box text { font-family: var(--font); fill: var(--muted); font-size: 11px; }
+        .chart-box .bar { fill: var(--chart); }
+        .chart-box .bar.dim { opacity: .45; }
+        .chart-box .grid { stroke: var(--grid); stroke-width: 1; }
+        .chart-box .base { stroke: var(--border); stroke-width: 1; }
+        .chart-box .hit { fill: transparent; cursor: pointer; }
+        .chart-box .hit:focus-visible { outline: none; }
+        .chart-box .hit:focus-visible + .focus-ring, .chart-box .focus-ring.on { stroke: var(--accent); }
+        .chart-box .focus-ring { fill: none; stroke: transparent; stroke-width: 2; rx: 6; }
+        .tooltip {
+            position: absolute; pointer-events: none; z-index: 2;
+            background: var(--text); color: var(--bg); font-size: 13px; font-weight: 600; line-height: 1.45;
+            padding: 6px 10px; border-radius: 8px; white-space: nowrap; transform: translate(-50%, -100%);
+            box-shadow: var(--shadow);
+        }
+        .tooltip .t-dim { font-weight: 500; opacity: .8; }
+        details.table-view { margin-top: 8px; }
+        details.table-view summary { cursor: pointer; min-height: var(--tap); display: flex; align-items: center; font-size: 14px; font-weight: 600; color: var(--accent-text); }
+        .tbl { width: 100%; border-collapse: collapse; font-size: 14px; font-variant-numeric: tabular-nums; }
+        .tbl th, .tbl td { padding: 6px 4px; border-bottom: 1px solid var(--grid); text-align: right; }
+        .tbl th:first-child, .tbl td:first-child { text-align: left; }
+        .tbl th { color: var(--muted); font-weight: 600; }
+        .log-list { margin: 0; padding: 0; list-style: none; }
+        .log-list li { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-bottom: 1px solid var(--grid); }
+        .log-list li:last-child { border-bottom: 0; }
+        .log-list .emoji { font-size: 22px; flex: none; }
+        .log-list .t { font-weight: 700; font-size: 15px; line-height: 1.4; }
+        .log-list .m { font-size: 13px; color: var(--muted); }
+        .log-list .time { margin-left: auto; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; flex: none; }
+        .empty { padding: 22px 16px; text-align: center; color: var(--muted); font-size: 15px; }
+        .notice { padding: 12px 14px; border-radius: 12px; font-size: 14px; background: var(--tip-red-bg); border: 1px solid var(--tip-red-bd); color: var(--text); margin-bottom: 14px; }
+        .muted-link { background: none; border: 0; color: var(--muted); text-decoration: underline; font-size: 14px; min-height: var(--tap); cursor: pointer; padding: 0 4px; }
+
+        .toast {
+            position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom)); z-index: 60;
+            transform: translate(-50%, 20px); opacity: 0; transition: all .25s ease;
+            background: var(--text); color: var(--bg); padding: 12px 18px; border-radius: 12px; font-weight: 600; font-size: 15px;
+            max-width: calc(100vw - 32px); box-shadow: var(--shadow); pointer-events: none;
+        }
+        .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { transition: none !important; animation: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app">
+        <header class="topbar" id="topbar">
+            <button class="brand" id="brand-btn" type="button" aria-label="처음 화면으로">
+                <img src="icon-192x192.png" alt="" width="28" height="28">
+                <span>음성치료</span>
+            </button>
+            <button class="icon-btn" id="log-btn" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>
+                내 기록
+            </button>
+        </header>
+
+        <main>
+        <!-- 초기 화면 -->
+        <section id="welcome-screen" class="welcome" aria-labelledby="welcome-title">
+            <img class="hero-icon" src="icon-192x192.png" alt="" width="96" height="96">
+            <h1 id="welcome-title">집에서 간단히 할 수 있는<br>음성치료</h1>
+            <p class="lead">당신의 가장 편안한 목소리를 찾아가는 여정,<br>SOVT 음성치료와 함께 시작하세요.</p>
+            <div id="today-chip" class="today-chip"><span class="dot" aria-hidden="true"></span><span id="today-chip-text">오늘 아직 훈련 기록이 없어요</span></div>
+            <div class="actions">
+                <button id="resume-btn" class="btn btn-primary btn-block" type="button" hidden>이어서 훈련하기</button>
+                <button id="start-btn" class="btn btn-primary btn-block" type="button">시작하기</button>
+            </div>
+            <p class="disclaimer">이 앱은 자가 훈련을 돕는 도구이며 진료를 대신하지 않습니다. 훈련 중 통증, 목 조임, 증상 악화가 있으면 중단하고 담당 의료진과 상의하세요.</p>
+        </section>
+
+        <!-- 환자 유형 선택 화면 -->
+        <section id="selection-screen" class="screen" hidden aria-labelledby="sel-title">
+            <h2 id="sel-title" class="h2">안녕하세요!</h2>
+            <p class="sub">가장 잘 맞는 훈련 프로그램을 위해, 현재 목소리 상태와 가장 가까운 항목을 선택해 주세요.</p>
+
+            <div class="stack">
+                <button type="button" class="card card-btn condition-card" data-condition="presbylaryngis">
+                    <span class="badge-icon badge-blue" aria-hidden="true">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    </span>
+                    <span>
+                        <span class="card-title" style="display:block">노인성 후두 (성대 위축)</span>
+                        <span class="card-desc" style="display:block">목소리에 힘이 없고 가늘며, 쉰 소리가 나요.</span>
+                    </span>
+                    <svg class="chev" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                </button>
+
+                <button type="button" class="card card-btn condition-card" data-condition="nodules">
+                    <span class="badge-icon badge-red" aria-hidden="true">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </span>
+                    <span>
+                        <span class="card-title" style="display:block">성대 결절 / 폴립</span>
+                        <span class="card-desc" style="display:block">조금만 말해도 목이 아프고, 거친 소리가 나요.</span>
+                    </span>
+                    <svg class="chev" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                </button>
+
+                <button type="button" class="card card-btn condition-card" data-condition="paralysis">
+                    <span class="badge-icon badge-green" aria-hidden="true">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2h8a2 2 0 002-2v-1a2 2 0 012-2h1.945M7.8 17.2a4 4 0 006.4 0M12 12V9m0 9v-1.143"></path></svg>
+                    </span>
+                    <span>
+                        <span class="card-title" style="display:block">성대 마비</span>
+                        <span class="card-desc" style="display:block">목소리에 바람 새는 소리가 많고 숨이 차요.</span>
+                    </span>
+                    <svg class="chev" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                </button>
+            </div>
+
+            <div class="card info">
+                <button id="info-card-header" type="button" class="card-btn info-head" aria-expanded="false" aria-controls="info-card-content">
+                    <span class="badge-icon badge-indigo" aria-hidden="true">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </span>
+                    <span>
+                        <span class="card-title" style="display:block">음성치료란 무엇인가요?</span>
+                        <span class="card-desc" style="display:block">기본 원리와 SOVT에 대해 알아보세요.</span>
+                    </span>
+                    <svg class="chev" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+                <div id="info-card-content" class="info-body" hidden>
+                    <div>
+                        <h4>음성치료의 목표</h4>
+                        <p>단순히 목소리를 고치는 것을 넘어, 좋은 발성 습관으로 교정하여 직업적, 사회적으로 만족스러운 음성을 되찾도록 돕는 모든 과정입니다.</p>
+                    </div>
+                    <div>
+                        <h4>SOVT (반폐쇄성도훈련) 이란?</h4>
+                        <p>빨대, 입술 떨기 등으로 입 앞부분을 '반쯤' 막아 목에 힘을 덜 주고도 효율적으로 소리 내도록 돕는 훈련입니다. 정원 호스 끝을 손가락으로 살짝 막으면 물줄기가 더 강하고 멀리 뻗어 나가는 것과 같은 원리입니다.</p>
+                    </div>
+                    <div>
+                        <h4>SOVT의 핵심 원리: 그네 밀기</h4>
+                        <p>SOVT는 성대 위아래의 압력 차이를 줄여, 적은 힘으로 효율적인 진동을 만듭니다. 마치 등 뒤에서 순풍이 불 때 그네를 미는 것과 같습니다. 적은 힘으로도 그네를 밀 수 있고, 돌아올 때도 바람이 도와줘 전체 움직임이 부드럽고 효율적이게 됩니다. 이 '순풍'이 성대가 편안하게 일하도록 돕는 최적의 환경을 만듭니다.</p>
+                    </div>
+                    <div>
+                        <h4>SOVT의 장점</h4>
+                        <p>
+                            <strong>모두에게 효과적:</strong> 목소리가 약한 사람(과소기능)에게는 흩어지는 에너지를 모아주고, 목에 힘을 많이 주는 사람(과대기능)에게는 힘을 빼야만 소리가 더 잘 난다는 것을 즉각적으로 느끼게 해줍니다.<br>
+                            <strong class="block">빠른 피드백:</strong> 훈련 즉시 입술이나 뺨에 '진동'이라는 명확한 신호를 보내주어, 좋은 소리를 내는 감각을 빠르고 정확하게 익힐 수 있습니다.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 훈련 화면 -->
+        <section id="training-screen" hidden aria-labelledby="training-title">
+            <div class="train-hero">
+                <div class="row">
+                    <h2 id="training-title"></h2>
+                    <button id="back-btn" class="hero-btn" type="button">유형 변경</button>
+                </div>
+                <p id="training-subtitle"></p>
+                <div class="progress-line">
+                    <span id="today-progress-text">오늘 0/3 완료</span>
+                    <div class="progress-track" aria-hidden="true"><div id="today-progress-fill" class="progress-fill"></div></div>
+                </div>
+            </div>
+            <div class="screen">
+                <h3 class="section-title">오늘의 훈련 프로그램</h3>
+                <div id="exercise-list" class="stack">
+                    <!-- 훈련 내용이 동적으로 추가됩니다 -->
+                </div>
+                <p class="disclaimer">각 훈련을 누르면 설명과 세트/휴식 타이머가 열립니다. 타이머를 끝까지 마치면 오늘 기록에 자동 저장됩니다.</p>
+            </div>
+        </section>
+
+        <!-- 기록 화면 -->
+        <section id="log-screen" class="screen" hidden aria-labelledby="log-title">
+            <h2 id="log-title" class="h2">내 훈련 기록</h2>
+            <p class="sub">꾸준함이 가장 중요합니다. 최근 14일 동안의 훈련을 확인하세요.</p>
+            <div id="storage-notice" class="notice" hidden>이 브라우저에서는 기록을 저장할 수 없습니다(사생활 보호 모드 등). 앱을 닫으면 오늘 기록이 사라질 수 있어요.</div>
+
+            <div class="stats">
+                <div class="card stat"><div class="num" id="stat-today">0<small>세트</small></div><div class="lbl">오늘</div></div>
+                <div class="card stat"><div class="num" id="stat-days">0<small>일</small></div><div class="lbl">14일 중 훈련한 날</div></div>
+                <div class="card stat"><div class="num" id="stat-streak">0<small>일</small></div><div class="lbl">연속 훈련</div></div>
+            </div>
+
+            <div class="card chart-card">
+                <h3 id="chart-title">최근 14일 완료 세트 수</h3>
+                <p class="chart-sub" id="chart-sub">막대를 눌러 날짜별 자세한 기록을 볼 수 있어요.</p>
+                <div class="chart-box" id="chart-box"></div>
+                <details class="table-view">
+                    <summary>표로 보기</summary>
+                    <table class="tbl" id="chart-table">
+                        <thead><tr><th scope="col">날짜</th><th scope="col">세트</th><th scope="col">훈련 시간</th></tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </details>
+            </div>
+
+            <h3 class="section-title" style="margin-top:24px">오늘 한 훈련</h3>
+            <div class="card">
+                <ul class="log-list" id="today-list"></ul>
+            </div>
+
+            <div style="margin-top:20px; display:grid; gap:10px">
+                <button id="log-to-train-btn" class="btn btn-primary btn-block" type="button">훈련하러 가기</button>
+                <div style="text-align:center"><button id="reset-log-btn" class="muted-link" type="button">기록 전체 삭제</button></div>
+            </div>
+        </section>
+        </main>
+    </div>
+
+    <!-- 훈련 설명 + 타이머 모달 -->
+    <div id="exercise-modal" class="modal-overlay" aria-hidden="true">
+        <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="modal-title" tabindex="-1">
+            <div class="modal-head">
+                <h3 id="modal-title"></h3>
+                <button id="close-x-btn" class="close-x" type="button" aria-label="닫기">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+                </button>
+            </div>
+            <div id="modal-content-body" class="ex-body"></div>
+
+            <section class="timer" aria-labelledby="timer-title">
+                <div class="timer-head">
+                    <h4 id="timer-title">훈련 타이머</h4>
+                    <span id="timer-phase" class="timer-phase">준비</span>
+                </div>
+                <div class="ring-wrap">
+                    <svg viewBox="0 0 120 120" aria-hidden="true">
+                        <circle class="ring-bg" cx="60" cy="60" r="52" fill="none" stroke-width="10"/>
+                        <circle id="ring-fg" class="ring-fg" cx="60" cy="60" r="52" fill="none" stroke-width="10" stroke-linecap="round" stroke-dasharray="326.73" stroke-dashoffset="0"/>
+                    </svg>
+                    <div class="ring-center">
+                        <div id="timer-time" class="ring-time" role="timer" aria-label="남은 시간">0:10</div>
+                        <div id="timer-sets" class="ring-sets">세트 0/5</div>
+                    </div>
+                </div>
+                <div id="timer-live" class="sr-only" aria-live="polite"></div>
+                <div class="timer-actions">
+                    <button id="timer-main" class="btn btn-primary" type="button">시작</button>
+                    <button id="timer-reset" class="btn btn-secondary" type="button">초기화</button>
+                </div>
+                <div class="steppers" id="steppers">
+                    <div class="stepper" data-key="work">
+                        <div class="lbl">훈련(초)</div><div class="val" data-val>10</div>
+                        <div class="ctrl"><button type="button" data-step="-1" aria-label="훈련 시간 줄이기">−</button><button type="button" data-step="1" aria-label="훈련 시간 늘리기">+</button></div>
+                    </div>
+                    <div class="stepper" data-key="sets">
+                        <div class="lbl">세트</div><div class="val" data-val>5</div>
+                        <div class="ctrl"><button type="button" data-step="-1" aria-label="세트 수 줄이기">−</button><button type="button" data-step="1" aria-label="세트 수 늘리기">+</button></div>
+                    </div>
+                    <div class="stepper" data-key="rest">
+                        <div class="lbl">휴식(초)</div><div class="val" data-val>10</div>
+                        <div class="ctrl"><button type="button" data-step="-1" aria-label="휴식 시간 줄이기">−</button><button type="button" data-step="1" aria-label="휴식 시간 늘리기">+</button></div>
+                    </div>
+                </div>
+                <div class="timer-extra">
+                    <label class="check-row"><input type="checkbox" id="sound-toggle" checked> 신호음·진동</label>
+                </div>
+                <p id="timer-note" class="timer-note"></p>
+                <div class="timer-extra">
+                    <button id="manual-done" class="btn btn-secondary btn-sm" type="button">타이머 없이 완료로 기록</button>
+                </div>
+            </section>
+
+            <div style="margin-top:18px; text-align:right">
+                <button id="close-modal-btn" class="btn btn-primary" type="button" style="min-width:120px">닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <script>
+        // PWA 서비스 워커 등록 스크립트
+        if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').catch(err => {
+                    console.warn('ServiceWorker registration failed: ', err);
+                });
+            });
+        }
+
+        // ---------- 안전한 저장소 (localStorage 실패 시 메모리로 대체) ----------
+        const store = (() => {
+            const mem = {};
+            let ok = true;
+            try {
+                const k = '__sovt_test__';
+                window.localStorage.setItem(k, '1');
+                window.localStorage.removeItem(k);
+            } catch (e) { ok = false; }
+            return {
+                ok,
+                get(key, fallback) {
+                    try {
+                        const raw = ok ? window.localStorage.getItem(key) : mem[key];
+                        return raw == null ? fallback : JSON.parse(raw);
+                    } catch (e) { return fallback; }
+                },
+                set(key, value) {
+                    const raw = JSON.stringify(value);
+                    try {
+                        if (ok) window.localStorage.setItem(key, raw); else mem[key] = raw;
+                    } catch (e) { mem[key] = raw; }
+                },
+                remove(key) {
+                    try { if (ok) window.localStorage.removeItem(key); } catch (e) {}
+                    delete mem[key];
+                }
+            };
+        })();
+        const LOG_KEY = 'sovt.log.v1';
+        const TIMER_KEY = 'sovt.timer.v1';
+        const COND_KEY = 'sovt.lastCondition';
+        const SOUND_KEY = 'sovt.sound';
+
+        const welcomeScreen = document.getElementById('welcome-screen');
+        const selectionScreen = document.getElementById('selection-screen');
+        const trainingScreen = document.getElementById('training-screen');
+        const logScreen = document.getElementById('log-screen');
+
+        const startBtn = document.getElementById('start-btn');
+        const resumeBtn = document.getElementById('resume-btn');
+        const backBtn = document.getElementById('back-btn');
+        const conditionCards = document.querySelectorAll('.condition-card');
+
+        const infoCardHeader = document.getElementById('info-card-header');
+        const infoCardContent = document.getElementById('info-card-content');
+
+        const trainingTitle = document.getElementById('training-title');
+        const trainingSubtitle = document.getElementById('training-subtitle');
+        const exerciseList = document.getElementById('exercise-list');
+
+        const exerciseModal = document.getElementById('exercise-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalContentBody = document.getElementById('modal-content-body');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        const closeXBtn = document.getElementById('close-x-btn');
+
+        // ---------- 훈련 콘텐츠 (원문 그대로 유지) ----------
+        // timer: 세트/시간 기본값. basis 'text' = 본문 지침의 횟수·시간을 따름, 'default' = 본문에 시간 지정이 없어 앱이 정한 기본값.
+        const exercises = {
+            presbylaryngis: {
+                title: '노인성 후두 훈련',
+                subtitle: '목소리에 힘을 더해주는 훈련입니다. 성대가 잘 접촉하도록 도와줍니다.',
+                plan: [
+                    {
+                        title: '1단계: 몸 풀기 - 바른 자세와 호흡',
+                        icon: '🧘',
+                        timer: { work: 10, sets: 5, rest: 5, basis: 'sets' },
+                        details: `
+                            <p>편안한 소리를 위한 가장 중요한 준비 단계입니다.</p>
+                            <ol class="list-decimal list-inside mt-2 space-y-2">
+                                <li>어깨에 힘을 빼고 척추를 바르게 세워 앉습니다.</li>
+                                <li>한 손은 가슴, 다른 손은 배에 올립니다.</li>
+                                <li>코로 숨을 들이마실 때 배가 부풀어 오르는 것을 느낍니다. (복식호흡)</li>
+                                <li>'후-' 하고 길게 내쉬며 배가 들어가는 것을 확인합니다. 5회 반복하세요.</li>
+                            </ol>
+                        `
+                    },
+                    {
+                        title: '2단계: 소리 찾기 - 좁은 빨대 불기',
+                        icon: '🥤',
+                        timer: { work: 10, sets: 5, rest: 10, basis: 'text' },
+                        details: `
+                            <p>적절한 저항을 만들어 성대 접촉을 돕는 핵심 훈련입니다.</p>
+                            <ul class="list-disc list-inside mt-2 space-y-2">
+                                <li>커피 빨대처럼 <strong>조금 좁은 빨대</strong>를 준비합니다.</li>
+                                <li>입술에 힘을 빼고 가볍게 빨대를 뭅니다.</li>
+                                <li>복식호흡으로 숨을 마신 뒤, '우-' 소리를 내며 빨대를 통해 길게 불어줍니다.</li>
+                                <li>뺨이나 코 주변에 부드러운 진동이 느껴지면 좋습니다. 10초씩 5회 반복하세요.</li>
+                            </ul>
+                            <div class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                                <strong>팁:</strong> 흩어지는 목소리 에너지를 빨대라는 터널을 통해 모아주는 과정입니다.
+                            </div>
+                        `
+                    },
+                    {
+                        title: '3단계: 대화 연습 - 허밍 연결하기',
+                        icon: '🗣️',
+                        timer: { work: 30, sets: 3, rest: 15, basis: 'default' },
+                        details: `
+                            <p>훈련으로 찾은 좋은 감각을 실제 대화에 적용하는 연습입니다.</p>
+                             <ul class="list-disc list-inside mt-2 space-y-2">
+                                <li>입을 가볍게 다물고 '음~' 허밍을 해보세요. 입술 주변의 울림에 집중합니다.</li>
+                                <li>'음~ 높은 산에 올라가' 처럼, 말하기 전에 허밍으로 시작하는 연습을 합니다.</li>
+                                <li>아래 문장을 허밍과 연결하여 천천히, 울림을 느끼며 읽어보세요: <br><strong>"오늘은 날씨가 참 좋네요."</strong></li>
+                            </ul>
+                        `
+                    }
+                ]
+            },
+            nodules: {
+                title: '성대 결절/폴립 훈련',
+                subtitle: '목의 과도한 긴장을 풀고, 성대를 부드럽게 사용하는 훈련입니다.',
+                plan: [
+                     {
+                        title: '1단계: 몸 풀기 - 목과 어깨 이완',
+                        icon: '💆',
+                        timer: { work: 15, sets: 3, rest: 5, basis: 'sets' },
+                        details: `
+                            <p>목소리에 영향을 주는 주변 근육의 긴장을 푸는 것이 가장 중요합니다.</p>
+                            <ol class="list-decimal list-inside mt-2 space-y-2">
+                                <li>어깨를 으쓱 올렸다가 '툭' 떨어뜨리기를 3회 반복합니다.</li>
+                                <li>고개를 천천히 좌우로 돌리며 목 옆 근육을 부드럽게 늘려줍니다.</li>
+                                <li>입을 살짝 벌리고 턱에 힘을 뺀 상태를 유지합니다.</li>
+                            </ol>
+                        `
+                    },
+                    {
+                        title: '2단계: 소리 찾기 - 입술 떨기',
+                        icon: '😗',
+                        timer: { work: 10, sets: 5, rest: 10, basis: 'text' },
+                        details: `
+                            <p>목에 힘을 빼야만 성공할 수 있는 가장 효과적인 이완 훈련입니다.</p>
+                            <ul class="list-disc list-inside mt-2 space-y-2">
+                                <li>입술에 힘을 완전히 빼고 가볍게 닫습니다.</li>
+                                <li>숨을 내쉬면서 "브르르르-" 소리를 내며 입술 전체가 부드럽게 떨리도록 합니다.</li>
+                                <li>소리가 끊기지 않고 부드럽게 유지되는 것이 중요합니다. 10초씩 5회 반복하세요.</li>
+                            </ul>
+                             <div class="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                                <strong>팁:</strong> 잘 안될 경우, 양 검지로 입꼬리를 살짝 위로 올린 상태에서 시도하면 더 쉽습니다. 힘을 뺄수록 더 잘 됩니다.
+                            </div>
+                        `
+                    },
+                    {
+                        title: '3단계: 대화 연습 - 부드럽게 소리내기',
+                        icon: '🕊️',
+                        timer: { work: 30, sets: 3, rest: 15, basis: 'default' },
+                        details: `
+                            <p>성대에 충격을 주지 않고 부드럽게 말하는 습관을 만드는 연습입니다.</p>
+                             <ul class="list-disc list-inside mt-2 space-y-2">
+                                <li>입술 떨기('브르르르-')에서 자연스럽게 '아-' 모음으로 연결하는 연습을 합니다. (브르르르-아-)</li>
+                                <li>'하-' 소리를 내며 한숨을 쉬듯 말을 시작하는 연습을 합니다.</li>
+                                <li>아래 문장을 한숨 쉬듯 부드럽게 시작하여 읽어보세요: <br><strong>"(하-) 안녕하세요. 반갑습니다."</strong></li>
+                            </ul>
+                        `
+                    }
+                ]
+            },
+            paralysis: {
+                title: '성대 마비 훈련',
+                subtitle: '새어 나가는 호흡을 효율적인 소리로 바꾸는 훈련입니다.',
+                plan: [
+                     {
+                        title: '1단계: 몸 풀기 - 지지력 있는 호흡',
+                        icon: '💪',
+                        timer: { work: 8, sets: 5, rest: 5, basis: 'sets' },
+                        details: `
+                            <p>목소리를 받쳐줄 단단한 호흡의 기초를 만듭니다.</p>
+                            <ol class="list-decimal list-inside mt-2 space-y-2">
+                                <li>바른 자세로 앉아 복식호흡을 준비합니다.</li>
+                                <li>빨대를 입에 물고, 밀크셰이크를 빨아들이듯 숨을 '씁!'하고 들이마셔보세요.</li>
+                                <li>복부 근육에 힘이 들어가는 것을 느끼며 5회 반복합니다.</li>
+                            </ol>
+                        `
+                    },
+                    {
+                        title: "2단계: 소리 찾기 - '즈(zzz)' 소리내기",
+                        icon: '🐝',
+                        timer: { work: 10, sets: 5, rest: 10, basis: 'text' },
+                        details: `
+                            <p>새는 호흡을 모아 일정한 진동으로 만드는 훈련입니다.</p>
+                            <ul class="list-disc list-inside mt-2 space-y-2">
+                                <li>윗니와 아랫니를 가볍게 붙이고 '즈(zzz)-' 소리를 냅니다.</li>
+                                <li>소리가 끊기지 않고 최대한 길게, 일정한 세기로 유지되도록 노력합니다.</li>
+                                <li>입술과 코 주변의 진동에 집중합니다. 10초 이상 5회 반복하세요.</li>
+                            </ul>
+                             <div class="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                                <strong>팁:</strong> '즈-' 소리는 적절한 구강 내 압력을 만들어 성대 접촉을 효율적으로 돕습니다.
+                            </div>
+                        `
+                    },
+                    {
+                        title: '3단계: 대화 연습 - 끊어 읽기',
+                        icon: '📖',
+                        timer: { work: 30, sets: 3, rest: 15, basis: 'default' },
+                        details: `
+                            <p>숨이 차지 않도록 호흡을 조절하며 말하는 연습입니다.</p>
+                             <ul class="list-disc list-inside mt-2 space-y-2">
+                                <li>문장을 의미 단위로 짧게 나누어 읽습니다.</li>
+                                <li>아래 문장의 (/) 표시에서 편안하게 숨을 쉬고 다음 구절을 읽어보세요.</li>
+                                <li><strong>높은 산에 올라가 (/) 맑은 공기를 마시니 (/) 기분이 정말 상쾌합니다.</strong></li>
+                            </ul>
+                        `
+                    }
+                ]
+            }
+        };
+
+        const TIMER_BASIS_NOTE = {
+            text: '세트 수와 1세트 시간은 본문 지침의 “10초 × 5회”를 따른 값입니다. 휴식 시간은 앱 기본값이며, 담당 의료진의 지시가 있으면 그에 맞게 조절하세요.',
+            sets: '세트 수는 본문 지침의 반복 횟수를 따르고, 1세트 시간과 휴식 시간은 앱 기본값입니다. 숨이 차거나 어지러우면 시간을 늘리지 말고 쉬어 가세요.',
+            default: '본문에 시간 지정이 없어 앱 기본값(30초 × 3세트)을 넣었습니다. 목이 피곤하면 즉시 멈추고, 담당 의료진의 지시에 맞게 조절하세요.'
+        };
+        const LIMITS = { work: [3, 120], sets: [1, 20], rest: [0, 120] };
+        const STEP = { work: 5, sets: 1, rest: 5 };
+
+        // ---------- 날짜 / 기록 ----------
+        function dayKey(d) {
+            const y = d.getFullYear(), m = String(d.getMonth() + 1).padStart(2, '0'), dd = String(d.getDate()).padStart(2, '0');
+            return `${y}-${m}-${dd}`;
+        }
+        function getLog() {
+            const v = store.get(LOG_KEY, []);
+            return Array.isArray(v) ? v.filter(e => e && typeof e.d === 'string') : [];
+        }
+        function addLog(entry) {
+            const log = getLog();
+            log.push(entry);
+            const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 180);
+            const cut = dayKey(cutoff);
+            store.set(LOG_KEY, log.filter(e => e.d >= cut));
+        }
+        function entriesFor(key) { return getLog().filter(e => e.d === key); }
+        function fmtDur(sec) {
+            sec = Math.round(sec || 0);
+            const m = Math.floor(sec / 60), s = sec % 60;
+            if (m === 0) return `${s}초`;
+            return s ? `${m}분 ${s}초` : `${m}분`;
+        }
+        function streak() {
+            const days = new Set(getLog().map(e => e.d));
+            const d = new Date();
+            if (!days.has(dayKey(d))) d.setDate(d.getDate() - 1);
+            let n = 0;
+            while (days.has(dayKey(d))) { n++; d.setDate(d.getDate() - 1); }
+            return n;
+        }
+
+        // ---------- 화면 전환 (해시 라우팅: 안드로이드 뒤로가기 지원) ----------
+        let currentCondition = null;
+        function showScreen(screen) {
+            [welcomeScreen, selectionScreen, trainingScreen, logScreen].forEach(s => { s.hidden = s !== screen; });
+            window.scrollTo(0, 0);
+        }
+        function route() {
+            const h = location.hash.replace(/^#\/?/, '');
+            const [name, arg] = h.split('/');
+            if (name === 'select') { showScreen(selectionScreen); }
+            else if (name === 'train' && exercises[arg]) { renderTraining(arg); showScreen(trainingScreen); }
+            else if (name === 'log') { renderLog(); showScreen(logScreen); }
+            else { renderWelcome(); showScreen(welcomeScreen); }
+        }
+        function go(path) {
+            if (location.hash === '#/' + path) route(); else location.hash = '#/' + path;
+        }
+        window.addEventListener('hashchange', () => { closeModal(); route(); });
+
+        function renderWelcome() {
+            const last = store.get(COND_KEY, null);
+            if (last && exercises[last]) {
+                resumeBtn.hidden = false;
+                resumeBtn.textContent = `이어서 훈련하기 · ${exercises[last].title}`;
+                startBtn.textContent = '다른 유형 선택하기';
+                startBtn.className = 'btn btn-secondary btn-block';
+            } else {
+                resumeBtn.hidden = true;
+                startBtn.textContent = '시작하기';
+                startBtn.className = 'btn btn-primary btn-block';
+            }
+            const today = entriesFor(dayKey(new Date()));
+            const sets = today.reduce((a, e) => a + (e.s || 0), 0);
+            const chip = document.getElementById('today-chip');
+            chip.classList.toggle('done', today.length > 0);
+            document.getElementById('today-chip-text').textContent = today.length
+                ? `오늘 ${today.length}개 훈련 · ${sets}세트 완료`
+                : '오늘 아직 훈련 기록이 없어요';
+        }
+
+        function renderTraining(condition) {
+            currentCondition = condition;
+            store.set(COND_KEY, condition);
+            const data = exercises[condition];
+            trainingTitle.textContent = data.title;
+            trainingSubtitle.textContent = data.subtitle;
+
+            const todays = entriesFor(dayKey(new Date())).filter(e => e.c === condition);
+            exerciseList.innerHTML = '';
+            let doneCount = 0;
+            data.plan.forEach((exercise, idx) => {
+                const done = todays.filter(e => e.i === idx);
+                if (done.length) doneCount++;
+                const cfg = timerCfg(condition, idx);
+                const el = document.createElement('button');
+                el.type = 'button';
+                el.className = 'card card-btn';
+                el.innerHTML = `
+                    <span class="ex-emoji" aria-hidden="true">${exercise.icon}</span>
+                    <span style="min-width:0">
+                        <span class="card-title" style="display:block">${exercise.title}</span>
+                        <span class="ex-meta" style="display:block">${cfg.work}초 × ${cfg.sets}세트 · 휴식 ${cfg.rest}초</span>
+                        ${done.length ? `<span class="done-pill">✓ 오늘 ${done.length}회 완료</span>` : ''}
+                    </span>
+                    <svg class="chev" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                `;
+                el.addEventListener('click', () => showModal(condition, idx, el));
+                exerciseList.appendChild(el);
+            });
+            const total = data.plan.length;
+            document.getElementById('today-progress-text').textContent = `오늘 ${doneCount}/${total} 완료`;
+            document.getElementById('today-progress-fill').style.width = `${(doneCount / total) * 100}%`;
+        }
+
+        // ---------- 모달 ----------
+        let lastFocus = null;
+        let modalCtx = null;
+        function showModal(condition, idx, opener) {
+            const exercise = exercises[condition].plan[idx];
+            modalCtx = { condition, idx };
+            lastFocus = opener || document.activeElement;
+            modalTitle.textContent = exercise.title;
+            modalContentBody.innerHTML = exercise.details;
+            timer.load(condition, idx);
+            exerciseModal.classList.add('show');
+            exerciseModal.setAttribute('aria-hidden', 'false');
+            document.body.style.overflow = 'hidden';
+            exerciseModal.querySelector('.modal-content').scrollTop = 0;
+            setTimeout(() => closeXBtn.focus(), 50);
+        }
+        function closeModal() {
+            if (!exerciseModal.classList.contains('show')) return;
+            timer.stop(true);
+            exerciseModal.classList.remove('show');
+            exerciseModal.setAttribute('aria-hidden', 'true');
+            document.body.style.overflow = '';
+            if (currentCondition && !trainingScreen.hidden) renderTraining(currentCondition);
+            if (lastFocus && document.contains(lastFocus)) lastFocus.focus();
+            modalCtx = null;
+        }
+        closeModalBtn.addEventListener('click', closeModal);
+        closeXBtn.addEventListener('click', closeModal);
+        exerciseModal.addEventListener('click', (e) => { if (e.target === exerciseModal) closeModal(); });
+        document.addEventListener('keydown', (e) => {
+            if (!exerciseModal.classList.contains('show')) return;
+            if (e.key === 'Escape') { closeModal(); return; }
+            if (e.key === 'Tab') {
+                const f = [...exerciseModal.querySelectorAll('button:not([disabled]), input, [tabindex]:not([tabindex="-1"])')];
+                if (!f.length) return;
+                const first = f[0], last = f[f.length - 1];
+                if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+                else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+            }
+        });
+
+        // ---------- 타이머 ----------
+        function timerCfg(condition, idx) {
+            const base = exercises[condition].plan[idx].timer;
+            const saved = store.get(TIMER_KEY, {})[`${condition}:${idx}`] || {};
+            const cfg = { work: base.work, sets: base.sets, rest: base.rest };
+            for (const k of Object.keys(cfg)) {
+                const v = Number(saved[k]);
+                if (Number.isFinite(v) && v >= LIMITS[k][0] && v <= LIMITS[k][1]) cfg[k] = v;
+            }
+            return cfg;
+        }
+        function saveTimerCfg(condition, idx, cfg) {
+            const all = store.get(TIMER_KEY, {});
+            all[`${condition}:${idx}`] = cfg;
+            store.set(TIMER_KEY, all);
+        }
+
+        let audioCtx = null;
+        function cue(kind) {
+            if (!document.getElementById('sound-toggle').checked) return;
+            try {
+                audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+                const freqs = kind === 'done' ? [660, 880, 1046] : kind === 'rest' ? [523] : [784];
+                freqs.forEach((f, i) => {
+                    const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+                    o.type = 'sine'; o.frequency.value = f;
+                    const t = audioCtx.currentTime + i * 0.18;
+                    g.gain.setValueAtTime(0.0001, t);
+                    g.gain.exponentialRampToValueAtTime(0.25, t + 0.02);
+                    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.16);
+                    o.connect(g).connect(audioCtx.destination);
+                    o.start(t); o.stop(t + 0.18);
+                });
+            } catch (e) {}
+            try { if (navigator.vibrate) navigator.vibrate(kind === 'done' ? [120, 80, 120, 80, 200] : 150); } catch (e) {}
+        }
+
+        const timer = (() => {
+            const el = {
+                time: document.getElementById('timer-time'),
+                sets: document.getElementById('timer-sets'),
+                phase: document.getElementById('timer-phase'),
+                ring: document.getElementById('ring-fg'),
+                main: document.getElementById('timer-main'),
+                reset: document.getElementById('timer-reset'),
+                note: document.getElementById('timer-note'),
+                live: document.getElementById('timer-live'),
+                steppers: document.getElementById('steppers'),
+                manual: document.getElementById('manual-done')
+            };
+            const C = 2 * Math.PI * 52;
+            let cond, idx, cfg;
+            let state = 'idle';        // idle | work | rest | paused | done
+            let pausedFrom = null;
+            let phaseEnd = 0, remainMs = 0, setNo = 0, doneSets = 0, workedMs = 0, phaseStart = 0;
+            let tick = null, wakeLock = null;
+
+            function fmt(ms) {
+                const s = Math.max(0, Math.ceil(ms / 1000));
+                return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+            }
+            function announce(t) { el.live.textContent = t; }
+            async function lock() {
+                try { if ('wakeLock' in navigator && !wakeLock) wakeLock = await navigator.wakeLock.request('screen'); } catch (e) { wakeLock = null; }
+            }
+            function unlock() { try { wakeLock && wakeLock.release(); } catch (e) {} wakeLock = null; }
+
+            function render() {
+                const active = state === 'work' || state === 'rest';
+                const ph = state === 'paused' ? pausedFrom : state;
+                const total = (ph === 'rest' ? cfg.rest : cfg.work) * 1000;
+                let left;
+                if (active) left = Math.max(0, phaseEnd - Date.now());
+                else if (state === 'paused') left = remainMs;
+                else if (state === 'done') left = 0;
+                else left = cfg.work * 1000;
+                el.time.textContent = fmt(left);
+                const frac = state === 'done' ? 0 : (total ? left / total : 0);
+                el.ring.style.strokeDashoffset = String(C * (1 - frac));
+                el.ring.classList.toggle('rest', ph === 'rest');
+                el.phase.classList.toggle('rest', ph === 'rest' || state === 'done');
+                el.sets.textContent = state === 'done' ? `${doneSets}세트 완료` : `세트 ${Math.max(setNo, state === 'idle' ? 0 : 1)}/${cfg.sets}`;
+                el.phase.textContent = {
+                    idle: '준비', work: '훈련 중', rest: '휴식', done: '완료!',
+                    paused: '일시정지'
+                }[state];
+                el.main.textContent = state === 'idle' ? '시작' : state === 'paused' ? '계속하기' : state === 'done' ? '한 번 더' : '일시정지';
+                el.reset.disabled = state === 'idle';
+                el.steppers.querySelectorAll('.stepper').forEach(s => {
+                    const k = s.dataset.key;
+                    s.querySelector('[data-val]').textContent = cfg[k];
+                    const [mn, mx] = LIMITS[k];
+                    const locked = state !== 'idle' && state !== 'done';
+                    s.querySelector('[data-step="-1"]').disabled = locked || cfg[k] <= mn;
+                    s.querySelector('[data-step="1"]').disabled = locked || cfg[k] >= mx;
+                });
+            }
+            function startPhase(ph, ms) {
+                state = ph;
+                phaseStart = Date.now();
+                phaseEnd = phaseStart + ms;
+            }
+            function loop() {
+                if (state !== 'work' && state !== 'rest') return;
+                if (Date.now() >= phaseEnd) {
+                    if (state === 'work') {
+                        workedMs += phaseEnd - phaseStart;
+                        doneSets = setNo;
+                        if (setNo >= cfg.sets) { finish(); return; }
+                        if (cfg.rest > 0) {
+                            startPhase('rest', cfg.rest * 1000);
+                            cue('rest'); announce(`${setNo}세트 완료. ${cfg.rest}초 휴식`);
+                        } else {
+                            setNo++; startPhase('work', cfg.work * 1000);
+                            cue('work'); announce(`${setNo}세트 시작`);
+                        }
+                    } else {
+                        setNo++; startPhase('work', cfg.work * 1000);
+                        cue('work'); announce(`${setNo}세트 시작`);
+                    }
+                }
+                render();
+            }
+            function finish() {
+                state = 'done';
+                clearInterval(tick); tick = null; unlock();
+                cue('done');
+                record(true);
+                announce(`훈련 완료. ${doneSets}세트가 오늘 기록에 저장되었습니다.`);
+                render();
+            }
+            function record(full) {
+                if (doneSets < 1) return;
+                addLog({ d: dayKey(new Date()), t: Date.now(), c: cond, i: idx, s: doneSets, sec: Math.round(workedMs / 1000), full });
+                showToast(full ? `기록 완료 · ${doneSets}세트 저장` : `중간 기록 · ${doneSets}세트 저장`);
+            }
+            function reset() {
+                clearInterval(tick); tick = null; unlock();
+                state = 'idle'; setNo = 0; doneSets = 0; workedMs = 0; pausedFrom = null;
+                render();
+            }
+            function start() {
+                reset();
+                setNo = 1;
+                startPhase('work', cfg.work * 1000);
+                cue('work'); announce(`1세트 시작. ${cfg.work}초`);
+                tick = setInterval(loop, 200);
+                lock();
+                render();
+            }
+            el.main.addEventListener('click', () => {
+                // iOS 등에서 오디오는 사용자 제스처 안에서 열어야 함
+                try { audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)(); audioCtx.resume && audioCtx.resume(); } catch (e) {}
+                if (state === 'idle' || state === 'done') start();
+                else if (state === 'paused') {
+                    startPhase(pausedFrom, remainMs);
+                    phaseStart = Date.now() - ((pausedFrom === 'rest' ? cfg.rest : cfg.work) * 1000 - remainMs);
+                    tick = setInterval(loop, 200); lock();
+                    announce('다시 시작');
+                    render();
+                } else {
+                    remainMs = Math.max(0, phaseEnd - Date.now());
+                    pausedFrom = state; state = 'paused';
+                    clearInterval(tick); tick = null; unlock();
+                    announce('일시정지');
+                    render();
+                }
+            });
+            el.reset.addEventListener('click', () => {
+                if (state !== 'done' && doneSets > 0) record(false);
+                reset();
+            });
+            el.manual.addEventListener('click', () => {
+                addLog({ d: dayKey(new Date()), t: Date.now(), c: cond, i: idx, s: cfg.sets, sec: cfg.sets * cfg.work, full: true, manual: true });
+                showToast(`완료로 기록했어요 · ${cfg.sets}세트`);
+            });
+            el.steppers.addEventListener('click', (e) => {
+                const b = e.target.closest('button[data-step]');
+                if (!b || b.disabled) return;
+                const k = b.closest('.stepper').dataset.key;
+                const [mn, mx] = LIMITS[k];
+                let v = cfg[k] + Number(b.dataset.step) * STEP[k];
+                if (k === 'work' && cfg[k] <= 10 && Number(b.dataset.step) < 0) v = cfg[k] - 1;
+                if (k === 'work' && cfg[k] < 10 && Number(b.dataset.step) > 0) v = cfg[k] + 1;
+                cfg[k] = Math.min(mx, Math.max(mn, v));
+                saveTimerCfg(cond, idx, cfg);
+                if (state === 'done') reset(); else render();
+            });
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'visible') { if (tick) { lock(); loop(); } }
+            });
+            return {
+                load(c, i) {
+                    cond = c; idx = i; cfg = timerCfg(c, i);
+                    el.note.textContent = TIMER_BASIS_NOTE[exercises[c].plan[i].timer.basis];
+                    reset();
+                },
+                stop(logPartial) {
+                    if (logPartial && (state === 'work' || state === 'rest' || state === 'paused') && doneSets > 0) record(false);
+                    clearInterval(tick); tick = null; unlock();
+                    state = 'idle';
+                }
+            };
+        })();
+
+        const soundToggle = document.getElementById('sound-toggle');
+        soundToggle.checked = store.get(SOUND_KEY, true) !== false;
+        soundToggle.addEventListener('change', () => store.set(SOUND_KEY, soundToggle.checked));
+
+        let toastT = null;
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg; t.classList.add('show');
+            clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2400);
+        }
+
+        // ---------- 기록 화면 + 14일 그래프 ----------
+        const COND_NAME = { presbylaryngis: '노인성 후두', nodules: '성대 결절/폴립', paralysis: '성대 마비' };
+        function last14() {
+            const log = getLog();
+            const out = [];
+            for (let k = 13; k >= 0; k--) {
+                const d = new Date(); d.setHours(12, 0, 0, 0); d.setDate(d.getDate() - k);
+                const key = dayKey(d);
+                const es = log.filter(e => e.d === key);
+                out.push({ key, date: d, sets: es.reduce((a, e) => a + (e.s || 0), 0), sec: es.reduce((a, e) => a + (e.sec || 0), 0), n: es.length, today: k === 0 });
+            }
+            return out;
+        }
+        function niceMax(v) {
+            if (v <= 5) return 5;
+            const steps = [10, 15, 20, 30, 40, 50, 60, 80, 100, 150, 200];
+            return steps.find(s => s >= v) || Math.ceil(v / 50) * 50;
+        }
+        function renderChart() {
+            const box = document.getElementById('chart-box');
+            const days = last14();
+            const W = 340, H = 180, padL = 28, padR = 6, padT = 10, padB = 28;
+            const iw = W - padL - padR, ih = H - padT - padB;
+            const max = niceMax(Math.max(...days.map(d => d.sets)));
+            const slot = iw / days.length;
+            const bw = Math.max(6, slot - 6);
+            const y = v => padT + ih - (v / max) * ih;
+            const ticks = [0, max / 2, max];
+            let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-labelledby="chart-title chart-desc"><desc id="chart-desc">최근 14일 동안 날짜별 완료 세트 수 막대 그래프. 최대 ${Math.max(...days.map(d => d.sets))}세트.</desc>`;
+            ticks.forEach(t => {
+                svg += `<line class="${t === 0 ? 'base' : 'grid'}" x1="${padL}" x2="${W - padR}" y1="${y(t)}" y2="${y(t)}"/>`;
+                svg += `<text x="${padL - 6}" y="${y(t) + 4}" text-anchor="end">${Math.round(t)}</text>`;
+            });
+            days.forEach((d, i) => {
+                const x = padL + i * slot + (slot - bw) / 2;
+                const h = d.sets ? Math.max(3, (d.sets / max) * ih) : 0;
+                const top = padT + ih - h;
+                if (h > 0) {
+                    const r = Math.min(4, bw / 2, h);
+                    // 위쪽 모서리만 둥글게(기준선에 붙은 아래는 직각)
+                    svg += `<path class="bar" d="M${x},${padT + ih} V${top + r} Q${x},${top} ${x + r},${top} H${x + bw - r} Q${x + bw},${top} ${x + bw},${top + r} V${padT + ih} Z"/>`;
+                }
+                const label = `${d.date.getMonth() + 1}/${d.date.getDate()}`;
+                if (d.today || i % 3 === 1) {
+                    svg += `<text x="${x + bw / 2}" y="${H - 8}" text-anchor="middle" ${d.today ? 'style="font-weight:700;fill:var(--text)"' : ''}>${d.today ? '오늘' : label}</text>`;
+                }
+                svg += `<rect class="hit" data-i="${i}" x="${padL + i * slot}" y="${padT}" width="${slot}" height="${ih + padB - 4}" tabindex="0" role="button" aria-label="${label} ${d.sets}세트, ${fmtDur(d.sec)}"></rect>`;
+                svg += `<rect class="focus-ring" data-ring="${i}" x="${padL + i * slot + 1}" y="${padT}" width="${slot - 2}" height="${ih}" rx="6"></rect>`;
+            });
+            svg += `</svg><div class="tooltip" id="chart-tip" hidden></div>`;
+            box.innerHTML = svg;
+
+            const tip = box.querySelector('#chart-tip');
+            const svgEl = box.querySelector('svg');
+            function show(i) {
+                const d = days[i];
+                const rect = svgEl.getBoundingClientRect();
+                const scale = rect.width / W;
+                const cx = (padL + i * slot + slot / 2) * scale;
+                const top = (d.sets ? y(d.sets) : padT + ih) * scale;
+                const wd = ['일', '월', '화', '수', '목', '금', '토'][d.date.getDay()];
+                tip.innerHTML = `${d.date.getMonth() + 1}월 ${d.date.getDate()}일 (${wd})<br>${d.sets}세트 <span class="t-dim">· ${fmtDur(d.sec)} · 훈련 ${d.n}회</span>`;
+                tip.hidden = false;
+                const tw = tip.offsetWidth;
+                const clamped = Math.min(rect.width - tw / 2, Math.max(tw / 2, cx));
+                tip.style.left = clamped + 'px';
+                tip.style.top = Math.max(tip.offsetHeight, top - 6) + 'px';
+                box.querySelectorAll('.bar').forEach(b => b.classList.remove('dim'));
+                box.querySelectorAll('.focus-ring').forEach(r => r.classList.toggle('on', Number(r.dataset.ring) === i));
+            }
+            function hide() { tip.hidden = true; box.querySelectorAll('.focus-ring').forEach(r => r.classList.remove('on')); }
+            box.querySelectorAll('.hit').forEach(h => {
+                const i = Number(h.dataset.i);
+                h.addEventListener('pointerenter', () => show(i));
+                h.addEventListener('pointerdown', () => show(i));
+                h.addEventListener('focus', () => show(i));
+                h.addEventListener('blur', hide);
+            });
+            svgEl.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') hide(); });
+
+            const tb = document.querySelector('#chart-table tbody');
+            tb.innerHTML = days.slice().reverse().map(d =>
+                `<tr><td>${d.today ? '오늘' : `${d.date.getMonth() + 1}/${d.date.getDate()}`}</td><td>${d.sets}</td><td>${d.sec ? fmtDur(d.sec) : '–'}</td></tr>`
+            ).join('');
+            return days;
+        }
+        function renderLog() {
+            document.getElementById('storage-notice').hidden = store.ok;
+            const days = renderChart();
+            const today = days[days.length - 1];
+            document.getElementById('stat-today').innerHTML = `${today.sets}<small>세트</small>`;
+            document.getElementById('stat-days').innerHTML = `${days.filter(d => d.n > 0).length}<small>일</small>`;
+            document.getElementById('stat-streak').innerHTML = `${streak()}<small>일</small>`;
+
+            const list = document.getElementById('today-list');
+            const es = entriesFor(dayKey(new Date())).sort((a, b) => b.t - a.t);
+            if (!es.length) {
+                list.innerHTML = `<li class="empty" style="display:block">아직 오늘 기록이 없어요. 훈련 타이머를 끝까지 마치면 여기에 표시됩니다.</li>`;
+            } else {
+                list.innerHTML = es.map(e => {
+                    const ex = exercises[e.c] && exercises[e.c].plan[e.i];
+                    const tm = new Date(e.t);
+                    return `<li>
+                        <span class="emoji" aria-hidden="true">${ex ? ex.icon : '•'}</span>
+                        <span style="min-width:0"><span class="t" style="display:block">${ex ? ex.title : '훈련'}</span>
+                        <span class="m" style="display:block">${COND_NAME[e.c] || ''} · ${e.s}세트 · ${fmtDur(e.sec)}${e.full ? '' : ' · 중간 기록'}${e.manual ? ' · 직접 기록' : ''}</span></span>
+                        <span class="time">${String(tm.getHours()).padStart(2, '0')}:${String(tm.getMinutes()).padStart(2, '0')}</span>
+                    </li>`;
+                }).join('');
+            }
+        }
+
+        // ---------- 이벤트 ----------
+        startBtn.addEventListener('click', () => go('select'));
+        resumeBtn.addEventListener('click', () => go('train/' + store.get(COND_KEY, '')));
+        backBtn.addEventListener('click', () => go('select'));
+        document.getElementById('brand-btn').addEventListener('click', () => go(''));
+        document.getElementById('log-btn').addEventListener('click', () => go('log'));
+        document.getElementById('log-to-train-btn').addEventListener('click', () => {
+            const last = store.get(COND_KEY, null);
+            go(last && exercises[last] ? 'train/' + last : 'select');
+        });
+        document.getElementById('reset-log-btn').addEventListener('click', () => {
+            if (confirm('모든 훈련 기록을 삭제할까요? 되돌릴 수 없습니다.')) {
+                store.remove(LOG_KEY);
+                renderLog();
+                showToast('기록을 삭제했어요');
+            }
+        });
+        conditionCards.forEach(card => {
+            card.addEventListener('click', () => go('train/' + card.dataset.condition));
+        });
+        infoCardHeader.addEventListener('click', () => {
+            const open = infoCardHeader.getAttribute('aria-expanded') === 'true';
+            infoCardHeader.setAttribute('aria-expanded', String(!open));
+            infoCardContent.hidden = open;
+        });
+        window.addEventListener('resize', () => { if (!logScreen.hidden) renderChart(); });
+
+        route();
+    </script>
+</body>
+</html>
